@@ -1,0 +1,306 @@
+definitions:
+  models.BodySignIn:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      password:
+        description: 密码
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.BodySignUP:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      gender:
+        description: 性别
+        type: integer
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 密码
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.BodyUpdateUser:
+    properties:
+      gender:
+        description: 性别
+        type: integer
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 密码
+        type: string
+    type: object
+  models.DataSignIn:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      gender:
+        description: 性别
+        type: integer
+      id:
+        description: 由于前端可能存在数字失真（2^53-1），故转为字符串
+        example: "0"
+        type: string
+      nickname:
+        description: 昵称
+        type: string
+      token:
+        description: JSON Web Token
+        type: string
+    type: object
+  models.DataUserInfoList:
+    properties:
+      limit:
+        description: 每页条目数
+        type: integer
+      offset:
+        description: 偏移量
+        type: integer
+      total:
+        description: 总数
+        type: integer
+      users:
+        description: 用户列表
+        items:
+          $ref: '#/definitions/models.UserInfo'
+        type: array
+    type: object
+  models.ResponseCommon:
+    properties:
+      code:
+        description: 内部状态码
+        type: integer
+      message:
+        description: 消息提示
+        type: string
+    type: object
+  models.ResponseSignIn:
+    properties:
+      code:
+        description: 内部状态码
+        type: integer
+      data:
+        $ref: '#/definitions/models.DataSignIn'
+        description: 数据
+      message:
+        description: 消息提示
+        type: string
+    type: object
+  models.ResponseUserInfo:
+    properties:
+      code:
+        description: 内部状态码
+        type: integer
+      data:
+        $ref: '#/definitions/models.UserInfo'
+        description: 数据
+      message:
+        description: 消息提示
+        type: string
+    type: object
+  models.ResponseUserInfoList:
+    properties:
+      code:
+        description: 内部状态码
+        type: integer
+      data:
+        $ref: '#/definitions/models.DataUserInfoList'
+        description: 数据
+      message:
+        description: 消息提示
+        type: string
+    type: object
+  models.UserInfo:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      gender:
+        description: 性别
+        type: integer
+      id:
+        description: 用户ID，由于前端JS可能存在数字失真，故序列化时转为字符串
+        example: "0"
+        type: string
+      nickname:
+        description: 昵称
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /sign_in:
+    post:
+      consumes:
+      - application/json
+      description: 登录
+      parameters:
+      - description: 请求体参数
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodySignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseSignIn'
+      summary: 登录
+      tags:
+      - 用户
+  /sign_up:
+    post:
+      consumes:
+      - application/json
+      description: 注册
+      parameters:
+      - description: 请求体参数
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.BodySignUP'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseCommon'
+      summary: 注册
+      tags:
+      - 用户
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: 用户列表
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: 10
+        description: 每页条目数
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseUserInfoList'
+      summary: 用户列表
+      tags:
+      - 用户
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定用户
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseCommon'
+      summary: 删除指定用户
+      tags:
+      - 用户
+    get:
+      consumes:
+      - application/json
+      description: 获取指定用户
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseUserInfo'
+      summary: 获取指定用户
+      tags:
+      - 用户
+    post:
+      consumes:
+      - application/json
+      description: 更新指定用户
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 请求体参数
+        in: body
+        name: object
+        schema:
+          $ref: '#/definitions/models.BodyUpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseUserInfo'
+      summary: 更新指定用户
+      tags:
+      - 用户
+swagger: "2.0"
